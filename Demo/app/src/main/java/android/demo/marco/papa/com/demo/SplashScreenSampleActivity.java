@@ -1,6 +1,7 @@
 package android.demo.marco.papa.com.demo;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.core.splashscreen.SplashScreen;
@@ -12,6 +13,8 @@ public class SplashScreenSampleActivity extends Activity {
 
         // Handle the splash screen transition.
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
+        startActivity(new Intent(SplashScreenSampleActivity.this, MainActivity.class));
+        //finish();
     }
 }
