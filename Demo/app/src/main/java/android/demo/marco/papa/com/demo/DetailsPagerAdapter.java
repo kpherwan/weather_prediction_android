@@ -1,36 +1,33 @@
 package android.demo.marco.papa.com.demo;
 
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import java.util.Map;
+
 public class DetailsPagerAdapter extends FragmentStateAdapter {
+    Map<String, TomorrowIoData> tomorrowIoDataMap;
 
-
-    public DetailsPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    public DetailsPagerAdapter(@NonNull FragmentActivity fragmentActivity, Map<String, TomorrowIoData> tomorrowIoDataMap) {
         super(fragmentActivity);
+        this.tomorrowIoDataMap = tomorrowIoDataMap;
     }
-
-
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return new DetailsFragment();
+        if(position == 0) {
+            return new DetailsFragment(tomorrowIoDataMap.get("current"));
+        }
+        else {
+            return new DetailsFragment(null);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return 10;
+        return tomorrowIoDataMap.size();
     }
 }
