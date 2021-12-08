@@ -18,12 +18,7 @@ public class DetailsPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        if(position == 0) {
-            return new DetailsFragment(tomorrowIoDataMap.get("current"));
-        }
-        else {
-            return new DetailsFragment(null);
-        }
+        return new DetailsFragment(tomorrowIoDataMap.get("current"));
     }
 
     @Override

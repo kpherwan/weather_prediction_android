@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         setup();
     }
@@ -77,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             locationCoord = response.getString("loc");
-                            locationName = response.getString("city") + "," + response.getString("region");
+                            locationName = response.getString("city") + ", " + response.getString("region");
                             fetchJsonResponseForAllLocationsInner(locationCoord, "current", locationName,new VolleyCallBack() {
                                 @Override
                                 public void onSuccess() {
