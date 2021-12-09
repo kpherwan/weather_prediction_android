@@ -89,11 +89,4 @@ public class DetailsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_details);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
-    }
 }

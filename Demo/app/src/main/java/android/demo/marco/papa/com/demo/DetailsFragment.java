@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -100,7 +101,7 @@ public class DetailsFragment extends Fragment {
             c.setText(values.getString("pressureSeaLevel") + "inHg");
 
             for (int j = 0; j < tomorrowIoData.getIntervals().length(); j++) {
-                LinearLayout main = view.findViewById(R.id.main_page);
+                LinearLayout main = view.findViewById(R.id.scrollView);
                 View row = inflater.inflate(R.layout.row_detail, null);
 
                 c = row.findViewById(R.id.date);

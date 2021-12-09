@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DayDetailsPagerAdapter extends FragmentStateAdapter {
     JSONArray intervals;
@@ -24,10 +25,13 @@ public class DayDetailsPagerAdapter extends FragmentStateAdapter {
         try {
             switch (position) {
                 case 0:
-                case 2:
                     return new DayDetailsFragment(intervals.getJSONObject(0).getJSONObject("values"), hourlyData.getJSONObject(0).getJSONObject("values").getString("uvIndex"));
                 case 1:
                     return new HighChartFragment(intervals);
+                case 2:
+                    JSONObject values = intervals.getJSONObject(0).getJSONObject("values");
+                    return new GaugeFragment(values.getInt("cloudCover"), values.getInt("precipitationProbability"),
+                            values.getInt("humidity"));
             }
         } catch (JSONException e) {
             e.printStackTrace();
