@@ -1,20 +1,20 @@
 package android.demo.marco.papa.com.demo;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,9 +26,13 @@ import java.util.Map;
 public class DetailsFragment extends Fragment {
     TomorrowIoData tomorrowIoData;
     Map<String, String> weatherMap = new HashMap<>();
+    private boolean isLocal;
+    private boolean isFave;
 
-    public DetailsFragment(TomorrowIoData tomorrowIoData) {
+    public DetailsFragment(TomorrowIoData tomorrowIoData, boolean isLocal, boolean isFave) {
+        this.isFave = isFave;
         this.tomorrowIoData = tomorrowIoData;
+        this.isLocal = isLocal;
         weatherMap.put("4201", "Heavy Rain");
         weatherMap.put("1001", "Cloudy");
         weatherMap.put("4001", "Rain");
@@ -60,6 +64,39 @@ public class DetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.weather_details_fragment, container, false);
+        View button = view.findViewById(R.id.addFave);
+        ImageView visual = view.findViewById(R.id.faveButton);
+        if (isLocal) {
+            button.setVisibility(View.INVISIBLE);
+        } else {
+            button.setVisibility(View.VISIBLE);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Context context = getActivity();
+                    SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+
+                    if(!isFave) {
+                        Toast.makeText(getContext(), tomorrowIoData.getLocationName() + " was added to favorites", Toast.LENGTH_SHORT).show();
+                        visual.setImageDrawable(getResources().getDrawable(R.drawable.removefave));
+                        editor.putString(tomorrowIoData.getLocationName(), tomorrowIoData.getCoord());
+                        isFave = true;
+                    }
+                    else {
+                        Toast.makeText(getContext(), tomorrowIoData.getLocationName() + " was removed from favorites", Toast.LENGTH_SHORT).show();
+                        visual.setImageDrawable(getResources().getDrawable(R.drawable.addfave));
+                        editor.remove(tomorrowIoData.getLocationName());
+                        isFave = false;
+                    }
+                    editor.apply();
+                }
+            });
+            if (isFave) {
+                visual.setImageDrawable(getResources().getDrawable(R.drawable.removefave));
+            }
+        }
+
         view.findViewById(R.id.topBox).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

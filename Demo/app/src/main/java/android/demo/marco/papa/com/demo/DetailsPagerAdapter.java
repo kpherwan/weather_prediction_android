@@ -9,16 +9,25 @@ import java.util.Map;
 
 public class DetailsPagerAdapter extends FragmentStateAdapter {
     Map<String, TomorrowIoData> tomorrowIoDataMap;
+    String keys[];
 
     public DetailsPagerAdapter(@NonNull FragmentActivity fragmentActivity, Map<String, TomorrowIoData> tomorrowIoDataMap) {
         super(fragmentActivity);
         this.tomorrowIoDataMap = tomorrowIoDataMap;
+        int i = 0;
+        keys = new String[tomorrowIoDataMap.size()];
+        for(String key: tomorrowIoDataMap.keySet()) {
+            keys[i++] = key;
+        }
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return new DetailsFragment(tomorrowIoDataMap.get("current"));
+        if(position < keys.length) {
+            return new DetailsFragment(tomorrowIoDataMap.get(keys[position]), keys[position].equals("current"), !keys[position].equals("current"));
+        }
+        return new DetailsFragment(tomorrowIoDataMap.get("current"), true, !keys[position].equals("current"));
     }
 
     @Override

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/weatherDetails"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:id="@+id/main_page"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -217,20 +218,36 @@
 
         </LinearLayout>
 
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
 
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@id/scrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@id/scrollView"
                 android:background="@color/gray"
-                android:orientation="vertical"
-                >
-            </LinearLayout>
+                android:orientation="vertical"></LinearLayout>
         </ScrollView>
-
     </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/addFave"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="20dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        app:cardCornerRadius="18dp">
+
+        <ImageView
+            android:id="@+id/faveButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="7dp"
+            android:src="@drawable/addfave" />
+    </androidx.cardview.widget.CardView>
 </FrameLayout>
