@@ -1,5 +1,6 @@
 package android.demo.marco.papa.com.demo;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.demo.marco.papa.com.demo.databinding.TabDeetBinding;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -67,6 +69,8 @@ public class DetailsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     finish();
+                    Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                    startActivity(intent);
                 }
             });
 

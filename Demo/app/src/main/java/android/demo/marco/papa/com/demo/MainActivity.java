@@ -1,9 +1,13 @@
 package android.demo.marco.papa.com.demo;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchJsonResponseForAllLocations() {
         tomorrowIoDataMap = new HashMap<>();
+        findViewById(R.id.ProgressBar01).setVisibility(View.VISIBLE);
         SharedPreferences sharedPref = getBaseContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         Map<String, String> allFaves = (Map<String, String>) sharedPref.getAll();
         // Pass second argument as "null" for GET requests
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 if (tomorrowIoDataMap.size() == size) {
+                    findViewById(R.id.ProgressBar01).setVisibility(View.INVISIBLE);
                     ViewPager2 pager = findViewById(R.id.details_viewpager);
                     DetailsPagerAdapter adapter = new DetailsPagerAdapter(MainActivity.this, tomorrowIoDataMap);
                     pager.setAdapter(adapter);

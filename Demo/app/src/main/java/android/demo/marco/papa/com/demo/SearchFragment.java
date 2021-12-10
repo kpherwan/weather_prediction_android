@@ -27,7 +27,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SearchFragment extends Fragment {
     private static final int TRIGGER_AUTO_COMPLETE = 100;
@@ -36,8 +38,77 @@ public class SearchFragment extends Fragment {
     private boolean isSearchCompleted = false;
     private AutoSuggestAdapter autoSuggestAdapter;
 
+    public static final Map<String, String> STATE_MAP = new HashMap<>();
+
     public SearchFragment() {
         // Required empty public constructor
+        STATE_MAP.put("AL", "Alabama");
+        STATE_MAP.put("AK", "Alaska");
+        STATE_MAP.put("AB", "Alberta");
+        STATE_MAP.put("AZ", "Arizona");
+        STATE_MAP.put("AR", "Arkansas");
+        STATE_MAP.put("BC", "British Columbia");
+        STATE_MAP.put("CA", "California");
+        STATE_MAP.put("CO", "Colorado");
+        STATE_MAP.put("CT", "Connecticut");
+        STATE_MAP.put("DE", "Delaware");
+        STATE_MAP.put("DC", "District Of Columbia");
+        STATE_MAP.put("FL", "Florida");
+        STATE_MAP.put("GA", "Georgia");
+        STATE_MAP.put("GU", "Guam");
+        STATE_MAP.put("HI", "Hawaii");
+        STATE_MAP.put("ID", "Idaho");
+        STATE_MAP.put("IL", "Illinois");
+        STATE_MAP.put("IN", "Indiana");
+        STATE_MAP.put("IA", "Iowa");
+        STATE_MAP.put("KS", "Kansas");
+        STATE_MAP.put("KY", "Kentucky");
+        STATE_MAP.put("LA", "Louisiana");
+        STATE_MAP.put("ME", "Maine");
+        STATE_MAP.put("MB", "Manitoba");
+        STATE_MAP.put("MD", "Maryland");
+        STATE_MAP.put("MA", "Massachusetts");
+        STATE_MAP.put("MI", "Michigan");
+        STATE_MAP.put("MN", "Minnesota");
+        STATE_MAP.put("MS", "Mississippi");
+        STATE_MAP.put("MO", "Missouri");
+        STATE_MAP.put("MT", "Montana");
+        STATE_MAP.put("NE", "Nebraska");
+        STATE_MAP.put("NV", "Nevada");
+        STATE_MAP.put("NB", "New Brunswick");
+        STATE_MAP.put("NH", "New Hampshire");
+        STATE_MAP.put("NJ", "New Jersey");
+        STATE_MAP.put("NM", "New Mexico");
+        STATE_MAP.put("NY", "New York");
+        STATE_MAP.put("NF", "Newfoundland");
+        STATE_MAP.put("NC", "North Carolina");
+        STATE_MAP.put("ND", "North Dakota");
+        STATE_MAP.put("NT", "Northwest Territories");
+        STATE_MAP.put("NS", "Nova Scotia");
+        STATE_MAP.put("NU", "Nunavut");
+        STATE_MAP.put("OH", "Ohio");
+        STATE_MAP.put("OK", "Oklahoma");
+        STATE_MAP.put("ON", "Ontario");
+        STATE_MAP.put("OR", "Oregon");
+        STATE_MAP.put("PA", "Pennsylvania");
+        STATE_MAP.put("PE", "Prince Edward Island");
+        STATE_MAP.put("PR", "Puerto Rico");
+        STATE_MAP.put("QC", "Quebec");
+        STATE_MAP.put("RI", "Rhode Island");
+        STATE_MAP.put("SK", "Saskatchewan");
+        STATE_MAP.put("SC", "South Carolina");
+        STATE_MAP.put("SD", "South Dakota");
+        STATE_MAP.put("TN", "Tennessee");
+        STATE_MAP.put("TX", "Texas");
+        STATE_MAP.put("UT", "Utah");
+        STATE_MAP.put("VT", "Vermont");
+        STATE_MAP.put("VI", "Virgin Islands");
+        STATE_MAP.put("VA", "Virginia");
+        STATE_MAP.put("WA", "Washington");
+        STATE_MAP.put("WV", "West Virginia");
+        STATE_MAP.put("WI", "Wisconsin");
+        STATE_MAP.put("WY", "Wyoming");
+        STATE_MAP.put("YT", "Yukon Territory");
     }
 
     @Override
@@ -53,6 +124,9 @@ public class SearchFragment extends Fragment {
         mainView.findViewById(R.id.back2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(getContext(), InputMethodManager.class);
+                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 fm.popBackStack();
                 if (isSearchCompleted) {
@@ -87,6 +161,8 @@ public class SearchFragment extends Fragment {
                 autoCompleteTextView.setCursorVisible(false);
                 isSearchCompleted = true;
                 String selectedOption = autoSuggestAdapter.getObject(position);
+
+                getActivity().findViewById(R.id.ProgressBar01).setVisibility(View.VISIBLE);
 
                 ApiCall.make(getContext(), "https://maps.googleapis.com/maps/api/geocode/json?address=" +
                                 selectedOption + "&key=AIzaSyAoJrD09LsoTIlgQd_SimxKZbRkJtduSHI",
@@ -154,7 +230,7 @@ public class SearchFragment extends Fragment {
                     JSONArray array = new JSONArray(response);
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject row = array.getJSONObject(i);
-                        stringList.add(row.getString("city") + ", " + row.getString("state"));
+                        stringList.add(row.getString("city") + ", " + STATE_MAP.get(row.getString("state")));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -169,6 +245,7 @@ public class SearchFragment extends Fragment {
         });
     }
 
+
     private void makeApiCallTomorrowIo(String url, String locationName, String coord) {
         ApiCall.make(getContext(), url, new Response.Listener<String>() {
             @Override
@@ -180,6 +257,8 @@ public class SearchFragment extends Fragment {
                     JSONArray initializedDataHourly = response.getJSONObject("current").getJSONObject("data").getJSONArray("timelines").getJSONObject(0).getJSONArray("intervals");
                     DetailsFragment detailsFragment = new DetailsFragment(new TomorrowIoData(intervals, initializedDataHourly,
                             locationName, coord), false, false);
+
+                    getActivity().findViewById(R.id.ProgressBar01).setVisibility(View.INVISIBLE);
                     FragmentManager fm = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fm.beginTransaction();
                     fragmentTransaction.replace(R.id.frameLayoutBody, detailsFragment);

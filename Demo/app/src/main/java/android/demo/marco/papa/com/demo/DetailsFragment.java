@@ -1,5 +1,7 @@
 package android.demo.marco.papa.com.demo;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,6 +31,13 @@ public class DetailsFragment extends Fragment {
     Map<String, String> weatherMap = new HashMap<>();
     private boolean isLocal;
     private boolean isFave;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager) getSystemService(getContext(), InputMethodManager.class);
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+    }
 
     public DetailsFragment(TomorrowIoData tomorrowIoData, boolean isLocal, boolean isFave) {
         this.isFave = isFave;
@@ -77,13 +87,12 @@ public class DetailsFragment extends Fragment {
                     SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
 
-                    if(!isFave) {
+                    if (!isFave) {
                         Toast.makeText(getContext(), tomorrowIoData.getLocationName() + " was added to favorites", Toast.LENGTH_SHORT).show();
                         visual.setImageDrawable(getResources().getDrawable(R.drawable.removefave));
                         editor.putString(tomorrowIoData.getLocationName(), tomorrowIoData.getCoord());
                         isFave = true;
-                    }
-                    else {
+                    } else {
                         Toast.makeText(getContext(), tomorrowIoData.getLocationName() + " was removed from favorites", Toast.LENGTH_SHORT).show();
                         visual.setImageDrawable(getResources().getDrawable(R.drawable.addfave));
                         editor.remove(tomorrowIoData.getLocationName());
