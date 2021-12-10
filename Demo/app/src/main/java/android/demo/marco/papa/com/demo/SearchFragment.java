@@ -2,6 +2,8 @@ package android.demo.marco.papa.com.demo;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,6 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ public class SearchFragment extends Fragment {
     private Handler handler;
     private boolean isSearchCompleted = false;
     private AutoSuggestAdapter autoSuggestAdapter;
+    private SharedPreferences sharedPreferencesReq;
 
     public static final Map<String, String> STATE_MAP = new HashMap<>();
 
@@ -121,6 +125,10 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View mainView = inflater.inflate(R.layout.fragment_search, container, false);
+
+        Context context = getActivity();
+        sharedPreferencesReq = context.getSharedPreferences(getString(R.string.req_file_key), Context.MODE_PRIVATE);
+
         mainView.findViewById(R.id.back2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,6 +182,10 @@ public class SearchFragment extends Fragment {
                                     JSONObject gLoc = jsonObject.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
                                     String location = gLoc.getString("lat") + "," + gLoc.getString("lng");
 
+                                    if(sharedPreferencesReq.contains(location)) {
+                                        extracted(sharedPreferencesReq.getString(location, ""), selectedOption, location);
+                                        return;
+                                    }
                                     makeApiCallTomorrowIo("https://csci571-hw8-329706.wl.r.appspot.com/currentWeather?location=" + location,
                                             selectedOption, location);
                                 } catch (Exception e) {
@@ -251,19 +263,8 @@ public class SearchFragment extends Fragment {
             @Override
             public void onResponse(String resp) {
                 try {
-                    JSONObject response = new JSONObject(resp);
-                    JSONArray timelines = response.getJSONObject("day").getJSONObject("data").getJSONArray("timelines");
-                    JSONArray intervals = timelines.getJSONObject(0).getJSONArray("intervals");
-                    JSONArray initializedDataHourly = response.getJSONObject("current").getJSONObject("data").getJSONArray("timelines").getJSONObject(0).getJSONArray("intervals");
-                    DetailsFragment detailsFragment = new DetailsFragment(new TomorrowIoData(intervals, initializedDataHourly,
-                            locationName, coord), false, false);
-
-                    getActivity().findViewById(R.id.ProgressBar01).setVisibility(View.INVISIBLE);
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                    fragmentTransaction.replace(R.id.frameLayoutBody, detailsFragment);
-                    fragmentTransaction.addToBackStack("TAG2");
-                    fragmentTransaction.commit(); // save the changes
+                    extracted(resp, locationName, coord);
+                    sharedPreferencesReq.edit().putString(coord, resp).commit();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -273,5 +274,21 @@ public class SearchFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
             }
         });
+    }
+
+    private void extracted(String resp, String locationName, String coord) throws JSONException {
+        JSONObject response = new JSONObject(resp);
+        JSONArray timelines = response.getJSONObject("day").getJSONObject("data").getJSONArray("timelines");
+        JSONArray intervals = timelines.getJSONObject(0).getJSONArray("intervals");
+        JSONArray initializedDataHourly = response.getJSONObject("current").getJSONObject("data").getJSONArray("timelines").getJSONObject(0).getJSONArray("intervals");
+        DetailsFragment detailsFragment = new DetailsFragment(new TomorrowIoData(intervals, initializedDataHourly,
+                locationName, coord), false, false);
+
+        getActivity().findViewById(R.id.ProgressBar01).setVisibility(View.INVISIBLE);
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayoutBody, detailsFragment);
+        fragmentTransaction.addToBackStack("TAG2");
+        fragmentTransaction.commit(); // save the changes
     }
 }

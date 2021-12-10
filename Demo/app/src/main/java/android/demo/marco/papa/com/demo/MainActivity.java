@@ -1,13 +1,9 @@
 package android.demo.marco.papa.com.demo;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -22,6 +18,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -67,9 +64,11 @@ public class MainActivity extends AppCompatActivity {
     Map<String, TomorrowIoData> tomorrowIoDataMap = new HashMap<>();
     SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener;
     boolean isRefreshNeeded = false;
+    SharedPreferences sharedPreferencesReq;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sharedPreferencesReq = getBaseContext().getSharedPreferences(getString(R.string.req_file_key), Context.MODE_PRIVATE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         onSharedPreferenceChangeListener = (sharedPreferences, key) -> {
@@ -113,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                         makeApiCallOuter(entry.getValue(), allFaves.size() + 1, entry.getKey());
                     }
                     makeApiCallOuter(locationCoord, allFaves.size() + 1, "current");
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void makeApiCallOuter(String locationCoord, int size, String mapKey) {
+    private void makeApiCallOuter(String locationCoord, int size, String mapKey) throws JSONException {
         makeApiCall("https://csci571-hw8-329706.wl.r.appspot.com/currentWeather?location=" + locationCoord, new VolleyCallBack() {
             @Override
             public void onSuccess() {
@@ -145,18 +145,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void makeApiCall(String url, final VolleyCallBack callBack, String mapKey, String coord) {
+    private void makeApiCall(String url, final VolleyCallBack callBack, String mapKey, String coord) throws JSONException {
+        if (sharedPreferencesReq.contains(coord)) {
+            addToMap(sharedPreferencesReq.getString(coord, ""), mapKey, coord, callBack);
+            return;
+        }
         ApiCall.make(getBaseContext(), url, new Response.Listener<String>() {
             @Override
             public void onResponse(String resp) {
                 try {
-                    JSONObject response = new JSONObject(resp);
-                    JSONArray timelines = response.getJSONObject("day").getJSONObject("data").getJSONArray("timelines");
-                    JSONArray intervals = timelines.getJSONObject(0).getJSONArray("intervals");
-                    JSONArray initializedDataHourly = response.getJSONObject("current").getJSONObject("data").getJSONArray("timelines").getJSONObject(0).getJSONArray("intervals");
-                    tomorrowIoDataMap.put(mapKey, new TomorrowIoData(intervals, initializedDataHourly,
-                            mapKey.equals("current") ? locationName : mapKey, coord));
-                    callBack.onSuccess();
+                    sharedPreferencesReq.edit().putString(coord, resp).commit();
+                    addToMap(resp, mapKey, coord, callBack);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -166,5 +165,15 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
             }
         });
+    }
+
+    public void addToMap(String resp, String mapKey, String coord, VolleyCallBack callBack) throws JSONException {
+        JSONObject response = new JSONObject(resp);
+        JSONArray timelines = response.getJSONObject("day").getJSONObject("data").getJSONArray("timelines");
+        JSONArray intervals = timelines.getJSONObject(0).getJSONArray("intervals");
+        JSONArray initializedDataHourly = response.getJSONObject("current").getJSONObject("data").getJSONArray("timelines").getJSONObject(0).getJSONArray("intervals");
+        tomorrowIoDataMap.put(mapKey, new TomorrowIoData(intervals, initializedDataHourly,
+                mapKey.equals("current") ? locationName : mapKey, coord));
+        callBack.onSuccess();
     }
 }
